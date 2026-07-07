@@ -7,19 +7,15 @@ dotenv.config();
 
 const app = express();
 
-// Global Middlewares
-app.use(express.json()); // Parse JSON bodies
-app.use(express.urlencoded({ extended: true })); // Parse URL-encoded bodies
+app.use(express.json());
+app.use(express.urlencoded({ extended: true }));
 
-// Routes
 app.use("/api/auth", authRoutes);
 
-// Health check route
 app.get("/", (req, res) => {
     res.json({ message: "DevDeck Backend API is Live 🚀" });
 });
 
-// Global Error Handler
 app.use(errorHandler);
 
 export default app;

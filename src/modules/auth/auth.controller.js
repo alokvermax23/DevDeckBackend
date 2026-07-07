@@ -30,25 +30,21 @@ export const githubCallback = async (req, res) => {
             return res.status(400).json({ error: "No primary email found from GitHub" });
         }
 
-        // Check if user exists in the database
         let dbUser = await prisma.user.findUnique({
             where: { githubId: String(user.id) }
         });
 
         if (!dbUser) {
-            // Check if email already exists but not linked to GitHub
             dbUser = await prisma.user.findUnique({
                 where: { email: emailToUse }
             });
 
             if (dbUser) {
-                // Link GitHub ID to existing user
                 dbUser = await prisma.user.update({
                     where: { email: emailToUse },
                     data: { githubId: String(user.id), avatarUrl: user.avatar_url || dbUser.avatarUrl }
                 });
             } else {
-                // Create new user
                 dbUser = await prisma.user.create({
                     data: {
                         githubId: String(user.id),
@@ -61,7 +57,6 @@ export const githubCallback = async (req, res) => {
             }
         }
 
-        // Generate a JWT session token
         const sessionToken = jwt.sign(
             { id: dbUser.id, email: dbUser.email },
             process.env.JWT_SECRET || "fallback_secret_key",
@@ -104,25 +99,21 @@ export const googleCallback = async (req, res) => {
             return res.status(400).json({ error: "No primary email found from Google" });
         }
 
-        // Check if user exists in the database by googleId
         let dbUser = await prisma.user.findUnique({
             where: { googleId: String(user.id) }
         });
 
         if (!dbUser) {
-            // Check if email already exists but not linked to Google
             dbUser = await prisma.user.findUnique({
                 where: { email: emailToUse }
             });
 
             if (dbUser) {
-                // Link Google ID to existing user
                 dbUser = await prisma.user.update({
                     where: { email: emailToUse },
                     data: { googleId: String(user.id), avatarUrl: user.picture || dbUser.avatarUrl, name: user.name || dbUser.name }
                 });
             } else {
-                // Create new user
                 dbUser = await prisma.user.create({
                     data: {
                         googleId: String(user.id),
@@ -135,7 +126,6 @@ export const googleCallback = async (req, res) => {
             }
         }
 
-        // Generate a JWT session token
         const sessionToken = jwt.sign(
             { id: dbUser.id, email: dbUser.email },
             process.env.JWT_SECRET || "fallback_secret_key",
