@@ -14,7 +14,13 @@ if (!connectionString) {
     console.warn("DATABASE_URL is not set in environment variables.");
 }
 
-const pool = new pg.Pool({ connectionString });
+const pool = new pg.Pool({ 
+    connectionString,
+    keepAlive: true,
+    connectionTimeoutMillis: 15000,
+    idleTimeoutMillis: 30000,
+    max: 10
+});
 const adapter = new PrismaPg(pool);
 
 const prisma = new PrismaClient({ adapter });
