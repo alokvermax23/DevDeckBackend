@@ -1,6 +1,7 @@
 import pg from 'pg';
 import { PrismaPg } from '@prisma/adapter-pg';
-import { PrismaClient } from '@prisma/client';
+import PrismaPkg from '@prisma/client';
+const { PrismaClient } = PrismaPkg;
 import dotenv from "dotenv";
 import dns from 'node:dns';
 

@@ -1,0 +1,43 @@
+service: devdeck-backend
+
+frameworkVersion: "4"
+
+provider:
+  name: aws
+  runtime: nodejs22.x
+  region: ap-south-1
+  environment:
+    DATABASE_URL: ${env:DATABASE_URL}
+    JWT_SECRET: ${env:JWT_SECRET}
+    GITHUB_CLIENT_ID: ${env:GITHUB_CLIENT_ID}
+    GITHUB_CLIENT_SECRET: ${env:GITHUB_CLIENT_SECRET}
+    GITHUB_CALLBACK_URL: ${env:GITHUB_CALLBACK_URL}
+    GOOGLE_CLIENT_ID: ${env:GOOGLE_CLIENT_ID}
+    GOOGLE_CLIENT_SECRET: ${env:GOOGLE_CLIENT_SECRET}
+    GOOGLE_CALLBACK_URL: ${env:GOOGLE_CALLBACK_URL}
+
+build:
+  esbuild:
+    packages: external
+
+package:
+  patterns:
+    - "node_modules/.prisma/**"
+    - "!node_modules/.cache/**"
+    - "!.git/**"
+    - "!tests/**"
+    - "!coverage/**"
+    - "!README.md"
+    - "!.env"
+    - "!**/*.log"
+
+functions:
+  api:
+    handler: handler.handler
+    events:
+      - httpApi:
+          path: /
+          method: ANY
+      - httpApi:
+          path: /{proxy+}
+          method: ANY
