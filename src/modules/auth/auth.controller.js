@@ -63,12 +63,10 @@ export const githubCallback = async (req, res) => {
             { expiresIn: "7d" }
         );
         
-        res.json({
-            message: "Successfully logged in with GitHub",
-            user: dbUser,
-            token: sessionToken,
-            githubAccessToken: accessToken
-        });
+        let redirectUrl = `devdeck://callback?token=${sessionToken}`;
+        if (dbUser.username) redirectUrl += `&username=${encodeURIComponent(dbUser.username)}`;
+        if (dbUser.name) redirectUrl += `&name=${encodeURIComponent(dbUser.name)}`;
+        res.redirect(redirectUrl);
     } catch (error) {
         console.error("Error during GitHub OAuth callback:", error);
         res.status(500).json({ error: "Internal server error" });
@@ -132,12 +130,10 @@ export const googleCallback = async (req, res) => {
             { expiresIn: "7d" }
         );
         
-        res.json({
-            message: "Successfully logged in with Google",
-            user: dbUser,
-            token: sessionToken,
-            googleAccessToken: accessToken
-        });
+        let redirectUrl = `devdeck://callback?token=${sessionToken}`;
+        if (dbUser.username) redirectUrl += `&username=${encodeURIComponent(dbUser.username)}`;
+        if (dbUser.name) redirectUrl += `&name=${encodeURIComponent(dbUser.name)}`;
+        res.redirect(redirectUrl);
     } catch (error) {
         console.error("Error during Google OAuth callback:", error);
         res.status(500).json({ error: "Internal server error" });
