@@ -143,9 +143,6 @@ export const refreshPlatform = async (req, res) => {
       return res.status(404).json({ error: "Platform link not found" });
     }
 
-    // Rate limit removed as per user request
-
-    // Fetch synchronously
     const fetcher = fetchers[link.platform];
     const result = await fetcher(link.externalUsername);
 

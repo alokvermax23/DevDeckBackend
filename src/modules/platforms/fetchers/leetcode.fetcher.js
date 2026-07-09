@@ -14,6 +14,9 @@ const LEETCODE_QUERY = `
         ranking
         realName
       }
+      userCalendar {
+        submissionCalendar
+      }
     }
   }
 `;
@@ -54,6 +57,15 @@ export async function fetchProfile(username) {
       else if (sub.difficulty === "Hard") hardCount = sub.count;
     }
 
+    let heatmapData = null;
+    if (matchedUser.userCalendar?.submissionCalendar) {
+      try {
+        heatmapData = JSON.parse(matchedUser.userCalendar.submissionCalendar);
+      } catch (e) {
+        console.warn("Failed to parse LeetCode submissionCalendar:", e.message);
+      }
+    }
+
     return {
       success: true,
       data: {
@@ -62,6 +74,7 @@ export async function fetchProfile(username) {
         mediumCount,
         hardCount,
         rank: matchedUser.profile?.ranking ? String(matchedUser.profile.ranking) : null,
+        heatmapData,
       },
     };
   } catch (error) {
