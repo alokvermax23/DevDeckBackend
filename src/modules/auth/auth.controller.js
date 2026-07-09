@@ -118,7 +118,6 @@ export const googleCallback = async (req, res) => {
                         name: user.name,
                         email: emailToUse,
                         avatarUrl: user.picture
-                        // username is omitted since Google doesn't provide one
                     }
                 });
             }

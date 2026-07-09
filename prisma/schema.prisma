@@ -22,4 +22,51 @@ model User {
   email     String   @unique
   avatarUrl String?
   createdAt DateTime @default(now())
+  platformLinks PlatformLink[]
+}
+
+enum Platform {
+  CODEFORCES
+  LEETCODE
+  GEEKSFORGEEKS
+  CODECHEF
+}
+
+enum SyncStatus {
+  PENDING
+  SUCCESS
+  FAILED
+}
+
+model PlatformLink {
+  id               String          @id @default(cuid())
+  userId           String
+  user             User            @relation(fields: [userId], references: [id], onDelete: Cascade)
+  platform         Platform
+  externalUsername String
+  isValid          Boolean         @default(true)
+  lastSyncedAt     DateTime?
+  lastSyncStatus   SyncStatus      @default(PENDING)
+  createdAt        DateTime        @default(now())
+  stats            PlatformStats[]
+
+  @@unique([userId, platform])
+  @@index([userId])
+}
+
+model PlatformStats {
+  id             String       @id @default(cuid())
+  platformLinkId String
+  platformLink   PlatformLink @relation(fields: [platformLinkId], references: [id], onDelete: Cascade)
+  problemsSolved Int?
+  rating         Int?
+  maxRating      Int?
+  rank           String?
+  easyCount      Int?
+  mediumCount    Int?
+  hardCount      Int?
+  heatmapData    Json?
+  syncedAt       DateTime     @default(now())
+
+  @@index([platformLinkId])
 }
