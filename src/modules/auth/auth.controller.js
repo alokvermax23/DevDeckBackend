@@ -51,7 +51,6 @@ export const githubCallback = async (req, res) => {
                 dbUser = await prisma.user.create({
                     data: {
                         githubId: String(user.id),
-                        username: user.login,
                         name: user.name,
                         email: emailToUse,
                         avatarUrl: user.avatar_url
@@ -67,7 +66,6 @@ export const githubCallback = async (req, res) => {
         );
         
         let redirectUrl = `devdeck://callback?token=${sessionToken}`;
-        if (dbUser.username) redirectUrl += `&username=${encodeURIComponent(dbUser.username)}`;
         if (dbUser.name) redirectUrl += `&name=${encodeURIComponent(dbUser.name)}`;
         redirectUrl += `&isNewUser=${isNewUser}`;
         res.redirect(redirectUrl);
@@ -137,7 +135,6 @@ export const googleCallback = async (req, res) => {
         );
         
         let redirectUrl = `devdeck://callback?token=${sessionToken}`;
-        if (dbUser.username) redirectUrl += `&username=${encodeURIComponent(dbUser.username)}`;
         if (dbUser.name) redirectUrl += `&name=${encodeURIComponent(dbUser.name)}`;
         redirectUrl += `&isNewUser=${isNewUser}`;
         res.redirect(redirectUrl);
