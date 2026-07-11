@@ -34,6 +34,8 @@ export const githubCallback = async (req, res) => {
             where: { githubId: String(user.id) }
         });
 
+        let isNewUser = false;
+
         if (!dbUser) {
             dbUser = await prisma.user.findUnique({
                 where: { email: emailToUse }
@@ -45,6 +47,7 @@ export const githubCallback = async (req, res) => {
                     data: { githubId: String(user.id), avatarUrl: user.avatar_url || dbUser.avatarUrl }
                 });
             } else {
+                isNewUser = true;
                 dbUser = await prisma.user.create({
                     data: {
                         githubId: String(user.id),
@@ -66,6 +69,7 @@ export const githubCallback = async (req, res) => {
         let redirectUrl = `devdeck://callback?token=${sessionToken}`;
         if (dbUser.username) redirectUrl += `&username=${encodeURIComponent(dbUser.username)}`;
         if (dbUser.name) redirectUrl += `&name=${encodeURIComponent(dbUser.name)}`;
+        redirectUrl += `&isNewUser=${isNewUser}`;
         res.redirect(redirectUrl);
     } catch (error) {
         console.error("Error during GitHub OAuth callback:", error);
@@ -101,6 +105,8 @@ export const googleCallback = async (req, res) => {
             where: { googleId: String(user.id) }
         });
 
+        let isNewUser = false;
+
         if (!dbUser) {
             dbUser = await prisma.user.findUnique({
                 where: { email: emailToUse }
@@ -112,6 +118,7 @@ export const googleCallback = async (req, res) => {
                     data: { googleId: String(user.id), avatarUrl: user.picture || dbUser.avatarUrl, name: user.name || dbUser.name }
                 });
             } else {
+                isNewUser = true;
                 dbUser = await prisma.user.create({
                     data: {
                         googleId: String(user.id),
@@ -132,6 +139,7 @@ export const googleCallback = async (req, res) => {
         let redirectUrl = `devdeck://callback?token=${sessionToken}`;
         if (dbUser.username) redirectUrl += `&username=${encodeURIComponent(dbUser.username)}`;
         if (dbUser.name) redirectUrl += `&name=${encodeURIComponent(dbUser.name)}`;
+        redirectUrl += `&isNewUser=${isNewUser}`;
         res.redirect(redirectUrl);
     } catch (error) {
         console.error("Error during Google OAuth callback:", error);
