@@ -2,6 +2,7 @@ import { getGithubAuthUrl, getGithubToken, getGithubUser, getGithubUserEmails } 
 import { getGoogleAuthUrl, getGoogleToken, getGoogleUser } from "./google.service.js";
 import prisma from "../../config/db.js";
 import jwt from "jsonwebtoken";
+import { fetchProfile as fetchGithub } from "../platforms/fetchers/github.fetcher.js";
 
 export const githublogin = (req, res) => {
     const url = getGithubAuthUrl();
@@ -56,6 +57,47 @@ export const githubCallback = async (req, res) => {
                         avatarUrl: user.avatar_url
                     }
                 });
+            }
+        }
+
+        // Auto-link GitHub platform
+        if (user.login) {
+            const githubLink = await prisma.platformLink.findUnique({
+                where: {
+                    userId_platform: {
+                        userId: dbUser.id,
+                        platform: "GITHUB"
+                    }
+                }
+            });
+
+            if (!githubLink) {
+                const result = await fetchGithub(user.login);
+                if (result.success) {
+                    const newLink = await prisma.platformLink.create({
+                        data: {
+                            userId: dbUser.id,
+                            platform: "GITHUB",
+                            externalUsername: user.login,
+                            lastSyncedAt: new Date(),
+                            lastSyncStatus: "SUCCESS",
+                        }
+                    });
+
+                    await prisma.platformStats.create({
+                        data: {
+                            platformLinkId: newLink.id,
+                            problemsSolved: result.data.problemsSolved ?? null,
+                            rating: result.data.rating ?? null,
+                            maxRating: result.data.maxRating ?? null,
+                            rank: result.data.rank ?? null,
+                            easyCount: result.data.easyCount ?? null,
+                            mediumCount: result.data.mediumCount ?? null,
+                            hardCount: result.data.hardCount ?? null,
+                            heatmapData: result.data.heatmapData ?? null,
+                        }
+                    });
+                }
             }
         }
 

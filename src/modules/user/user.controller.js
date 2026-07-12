@@ -83,3 +83,35 @@ export const updateUsername = async (req, res) => {
         res.status(500).json({ error: "Internal server error" });
     }
 };
+
+// @route   GET /api/user/me
+// @desc    Get the authenticated user's profile details
+// @access  Private
+export const getUserProfile = async (req, res) => {
+    try {
+        const userId = req.user.id;
+
+        const user = await prisma.user.findUnique({
+            where: { id: userId },
+            select: {
+                id: true,
+                username: true,
+                name: true,
+                email: true,
+                avatarUrl: true
+            }
+        });
+
+        if (!user) {
+            return res.status(404).json({ error: "User not found" });
+        }
+
+        res.json({
+            message: "User profile fetched successfully",
+            user
+        });
+    } catch (error) {
+        console.error("Error fetching user profile:", error);
+        res.status(500).json({ error: "Internal server error" });
+    }
+};

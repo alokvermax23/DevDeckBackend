@@ -30,6 +30,7 @@ enum Platform {
   LEETCODE
   GEEKSFORGEEKS
   CODECHEF
+  GITHUB
 }
 
 enum SyncStatus {

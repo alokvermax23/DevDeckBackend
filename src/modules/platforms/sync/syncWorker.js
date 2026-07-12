@@ -7,12 +7,14 @@ import { fetchProfile as fetchCodeforces } from "../fetchers/codeforces.fetcher.
 import { fetchProfile as fetchLeetcode } from "../fetchers/leetcode.fetcher.js";
 import { fetchProfile as fetchGFG } from "../fetchers/geeksforgeeks.fetcher.js";
 import { fetchProfile as fetchCodechef } from "../fetchers/codechef.fetcher.js";
+import { fetchProfile as fetchGithub } from "../fetchers/github.fetcher.js";
 
 const fetchers = {
   CODEFORCES: fetchCodeforces,
   LEETCODE: fetchLeetcode,
   GEEKSFORGEEKS: fetchGFG,
   CODECHEF: fetchCodechef,
+  GITHUB: fetchGithub,
 };
 
 export const syncWorker = new Worker(

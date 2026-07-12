@@ -44,25 +44,25 @@ export async function setupRepeatableJobs() {
  * @param {string} userId 
  */
 export async function scheduleRepeatableSync(platformLinkId, platform, userId) {
-  // Determine frequency
-  const isLight = platform === "CODEFORCES" || platform === "LEETCODE";
-  const frequencyHours = isLight ? 4 : 12;
-
-  // Stagger timing using a simple hash of the userId
-  // to get a minute offset between 0 and 59
-  let hash = 0;
-  for (let i = 0; i < userId.length; i++) {
-    hash += userId.charCodeAt(i);
-  }
-  const minuteOffset = hash % 60;
-  const cron = `${minuteOffset} */${frequencyHours} * * *`;
-
+  // Schedule for 5:30 AM IST
   await syncQueue.add(
     "sync-job",
     { platformLinkId },
     {
-      repeat: { pattern: cron },
-      jobId: `repeatable-${platformLinkId}`,
+      repeat: { pattern: "30 5 * * *", tz: "Asia/Kolkata" },
+      jobId: `repeatable-morning-${platformLinkId}`,
+      attempts: 3,
+      backoff: { type: "exponential", delay: 5000 },
+    }
+  );
+
+  // Schedule for 10:30 PM IST
+  await syncQueue.add(
+    "sync-job",
+    { platformLinkId },
+    {
+      repeat: { pattern: "30 22 * * *", tz: "Asia/Kolkata" },
+      jobId: `repeatable-night-${platformLinkId}`,
       attempts: 3,
       backoff: { type: "exponential", delay: 5000 },
     }

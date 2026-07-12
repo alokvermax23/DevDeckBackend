@@ -37,9 +37,15 @@ function mergeHeatMaps(heatmapsArray){
 function calculateCurrentStreak(heatmap){
     let streak = 0;
     let currentDate = new Date();
+    
+    let dateKey = currentDate.toISOString().split("T")[0];
+    if (!heatmap[dateKey]) {
+        currentDate.setDate(currentDate.getDate() - 1);
+    }
+
     while(true){
-        const dateKey = currentDate.toISOString().split("T")[0]; 
-        if(heatmap[dateKey] > 0){
+        const key = currentDate.toISOString().split("T")[0]; 
+        if(heatmap[key] > 0){
             streak = streak + 1;
             currentDate.setDate(currentDate.getDate() - 1);
         }
@@ -94,6 +100,11 @@ export async function getDashboardSummary(userId) {
     }
   });
 
+  const user = await prisma.user.findUnique({
+    where: { id: userId },
+    select: { avatarUrl: true }
+  });
+
   const platforms = platformLinks.map(link => {
       const latestStat = link.stats[0] || {};
       return {
@@ -106,21 +117,43 @@ export async function getDashboardSummary(userId) {
 
   const totalProblemsSolved = sumProblemSolved(platforms);  
 
+  const githubPlatform = platforms.find(p => p.platform === 'GITHUB');
+  const githubCommits = githubPlatform?.problemsSolved || 0;
+  const problemsSolved = totalProblemsSolved - githubCommits;
+
+  // All heatmaps merged
   const heatmapsArray = platforms
     .map(p => p.heatmapData)     
     .filter(h => h);              
-
   const heatmap = mergeHeatMaps(heatmapsArray);  
+
+  // GitHub-only heatmap
+  const githubHeatmapArray = platforms
+    .filter(p => p.platform === 'GITHUB')
+    .map(p => p.heatmapData)
+    .filter(h => h);
+  const githubHeatmap = mergeHeatMaps(githubHeatmapArray);
+
+  // Problems-only heatmap (non-GitHub platforms)
+  const problemsHeatmapArray = platforms
+    .filter(p => p.platform !== 'GITHUB')
+    .map(p => p.heatmapData)
+    .filter(h => h);
+  const problemsHeatmap = mergeHeatMaps(problemsHeatmapArray);
 
   const currentStreak = calculateCurrentStreak(heatmap);   
   const maxStreak = calculateMaxStreak(heatmap);      
 
   return {
-    totalProblemsSolved,
+    totalProblemsSolved: problemsSolved,
+    githubCommits,
     currentStreak,
     maxStreak,
     platformCount: platforms.length,
     heatmap,
-    platforms
+    githubHeatmap,
+    problemsHeatmap,
+    platforms,
+    avatarUrl: user?.avatarUrl
   };
 }
