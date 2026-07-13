@@ -57,7 +57,7 @@ function calculateCurrentStreak(heatmap){
 
 //calculate longest streak 
 function calculateMaxStreak(heatmap){
-    const dates = Object.keys(heatmap);
+    const dates = Object.keys(heatmap).filter(date => heatmap[date] > 0);
     if (dates.length === 0) return 0;
     
     dates.sort();
